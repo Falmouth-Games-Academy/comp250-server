@@ -1,11 +1,20 @@
 # comp250-server
 
-## Setup
+## Setup (on Windows)
 
-* Install Python 3.x
-* `pip install flask`
-* `pip install Twisted[windows_platform]`
-* Run `run_server.bat`
+* Install prerequisites:
+	* Python 3.x
+	* MongoDB community edition
+	* Git command-line tools
+	* Java JDK version 1.8
+	* Apache Ant (unzip `apache-ant-1.10.1` to the `..` directory relative to the server scripts)
+* `pip install` required packages:
+	* `flask`
+	* `Twisted`
+	* `Twisted[windows_platform]`
+	* `pymongo`
+* Execute `run_mongod.bat`
+* Execute `run_server.bat`
 
 ## References
 
