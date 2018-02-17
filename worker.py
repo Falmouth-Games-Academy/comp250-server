@@ -14,9 +14,10 @@ class WorkerThread(threading.Thread):
 			
 	def __init__(self):
 		self.queue = queue.Queue()
+		threading.Thread.__init__(self)
 	
 	def enqueue(self, callable, *args, **kwargs):
-		item = QueueItem(callable, args, kwargs)
+		item = WorkerThread.QueueItem(callable, args, kwargs)
 		self.queue.put(item)
 	
 	def run(self):

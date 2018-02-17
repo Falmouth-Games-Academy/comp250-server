@@ -1,12 +1,13 @@
 import flask
 import pymongo
 import subprocess
+import os
 
 from worker import WorkerThread
 
 # Change these if necessary
 JAVA_HOME = r"C:\Program Files\Java\jdk1.8.0_161"
-ANT_HOME = os.path.abspath("..\..\apache-ant-1.10.1")
+ANT_HOME = os.path.abspath(r"..\apache-ant-1.10.1")
 
 os.environ["JAVA_HOME"] = JAVA_HOME
 os.environ["ANT_HOME"] = ANT_HOME
@@ -25,11 +26,13 @@ def run_commands(working_dir, commands):
 	output = []
 	
 	for command in commands:
+		print(command)
 		output.append('-' * 80)
 		output.append(working_dir + '> ' + ' '.join(command))
 		
 		result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8", cwd=working_dir)
 		output.append(result.stdout)
+		print(result.stdout)
 		
 		if result.returncode != 0:
 			output.append('-' * 80)
@@ -47,21 +50,23 @@ def pull_and_build(bot):
 		os.mkdir(clone_path)
 		commands = [
 			["git", "init"],
-			["git", "remote", "add", "origin", bot["repository"]["clone_url"]]
+			["git", "remote", "add", "origin", bot["repository"]["clone_url"]],
+			["git", "fetch"],
+			["git", "reset", "--hard", bot["head"]],
+			["git", "submodule", "update", "--init", "--recursive"]
 		]
 	else:
 		commands = [
 			["git", "clean", "-fdx"],
+			["git", "fetch"],
+			["git", "reset", "--hard", bot["head"]]
 		]
-	
+
 	commands += [
-		["git", "fetch"],
-		["git", "reset", "--hard", bot["head"]],
-		["git", "submodule", "update"],
-		[ANT_BAT, "clean", "build", "jar"]
+		[ANT_BAT, "-buildfile", "bot", "clean", "build", "jar"]
 	]
 
-	success, build_log = run_commands(clone_path, git_commands)
+	success, build_log = run_commands(clone_path, commands)
 	
 	status = "ready" if success else "error"
 	
@@ -82,7 +87,7 @@ def hello():
 
 @app.route("/hook", methods=['POST'])
 def hook():
-	json = Flask.request.get_json()
+	json = flask.request.get_json()
 	
 	repo_name = json["repository"]["full_name"]
 	existing_bot = db.bots.find_one({"_id": repo_name})
@@ -91,7 +96,7 @@ def hook():
 		existing_bot = {"_id": repo_name}
 	
 	existing_bot["repository"] = json["repository"]
-	existing_bot["head"] = json["after"],
+	existing_bot["head"] = json["after"]
 	existing_bot["status"] = "building"
 	
 	db.bots.replace_one({"_id": repo_name}, existing_bot, upsert=True)
