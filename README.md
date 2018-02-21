@@ -16,6 +16,28 @@
 * Execute `run_mongod.bat`
 * Execute `run_server.bat`
 
+## Setup (on Ubuntu)
+
+* Install Oracle Java 8:
+```
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install oracle-java8-installer
+```
+* Install other prerequisites:
+```
+sudo apt-get install python3-pip python3-twisted mongodb git ant
+pip install flask pymongo
+```
+* Allow port 8000 through the firewall:
+```
+sudo ufw enable
+sudo ufw allow 8000
+```
+* Clone this repo
+* `mkdir tournament`
+* Execute `run_server.sh`
+
 ## References
 
 For `run_server.bat`:

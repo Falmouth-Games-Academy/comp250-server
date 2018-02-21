@@ -5,14 +5,6 @@ import os
 
 from worker import WorkerThread
 
-# Change these if necessary
-JAVA_HOME = r"C:\Program Files\Java\jdk1.8.0_161"
-ANT_HOME = os.path.abspath(r"..\apache-ant-1.10.1")
-
-os.environ["JAVA_HOME"] = JAVA_HOME
-os.environ["ANT_HOME"] = ANT_HOME
-ANT_BAT = os.path.join(ANT_HOME, "bin", "ant.bat")
-
 app = flask.Flask(__name__)
 
 client = pymongo.MongoClient()
@@ -63,7 +55,7 @@ def pull_and_build(bot):
 		]
 
 	commands += [
-		[ANT_BAT, "-buildfile", "bot", "clean", "build", "jar"]
+		["ant", "-buildfile", "bot", "clean", "build", "jar"]
 	]
 
 	success, build_log = run_commands(clone_path, commands)
