@@ -79,23 +79,25 @@ def generate_matches(bot_id):
 	for class_a in bot["class_names"]:
 		for class_b in bot["class_names"]:
 			if class_a != class_b:
-				pairings.append((bot_id, class_a, bot_id, class_b))
+				pairings.append((bot, class_a, bot, class_b))
 
 	# Matches between different bots
 	for class_a in bot["class_names"]:
 		for bot_b in other_bots:
 			for class_b in bot_b["class_names"]:
-				pairings.append((bot_id, class_a, bot_b["_id"], class_b))
+				pairings.append((bot, class_a, bot_b, class_b))
 	
 	for (bot_a, class_a, bot_b, class_b) in pairings:
 		for map_name in maps:
 			match = {
-				"player1": {"bot": bot_a, "class_name": class_a},
-				"player2": {"bot": bot_b, "class_name": class_b},
+				"player1": {"bot": bot_a["_id"], "head": bot_a["head"], "class_name": class_a},
+				"player2": {"bot": bot_b["_id"], "head": bot_a["head"], "class_name": class_b},
 				"map": map_name,
 				"random": random.random()
 			}
 			db.match_queue.insert_one(match)
+
+	db.match_queue.create_index("random")
 
 def pull_and_build(bot):
 	delete_matches(bot["_id"])

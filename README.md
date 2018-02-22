@@ -19,6 +19,7 @@ ant clean build jar
 cd ..
 
 mkdir tournament
+mkdir tournament/matches
 
 git clone https://github.com/Falmouth-Games-Academy/comp250-server.git
 
