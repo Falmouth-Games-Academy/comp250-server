@@ -1,8 +1,4 @@
-import pymongo
-
-client = pymongo.MongoClient()
-db = client.comp250
-
+from db import db
 
 def get_stats(player):
 	player_id = player["bot"] + '+' + player["class_name"]

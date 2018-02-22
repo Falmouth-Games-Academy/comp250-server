@@ -6,10 +6,8 @@ import zipfile
 import json
 import subprocess
 
+from db import db
 import stats
-
-client = pymongo.MongoClient()
-db = client.comp250
 
 
 def play_match(match):
