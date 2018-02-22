@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+	<head>
+		<title>COMP250 MicroRTS server</title>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<th>Author</th>
+				<th>Repository name</th>
+				<th>Class name</th>
+				<th>Elo rating</th>
+				<th>Won</th>
+				<th>Drawn</th>
+				<th>Lost</th>
+				<th>Disqualified</th>
+			</tr>
+			{% for stat in stats %}
+				<tr>
+					<td>{{ stat.author }}</td>
+					<td>{{ stat.repo_name }}</td>
+					<td>{{ stat.class_name }}</td>
+					<td>{{ stat.elo | round | int }}</td>
+					<td>{{ stat.won }}</td>
+					<td>{{ stat.drawn }}</td>
+					<td>{{ stat.lost }}</td>
+					<td>{{ stat.disqualified }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</body>
+</html>
+
