@@ -6,6 +6,8 @@ import zipfile
 import json
 import subprocess
 
+import stats
+
 client = pymongo.MongoClient()
 db = client.comp250
 
@@ -13,11 +15,11 @@ db = client.comp250
 def play_match(match):
 	command = ["java", "-cp", "microrts.jar:lib/*", "comp250.PlaySingleMatch"]
 	
-	for player in ["player1", "player2"]:
-		jar_name = match[player]["bot"].replace('/', '+') + '+' + match[player]["head"][:10] + '.jar'
+	for player in match["players"]:
+		jar_name = player["bot"].replace('/', '+') + '+' + player["head"][:10] + '.jar'
 		jar_path = os.path.join("..", "tournament", jar_name)
 		command.append(jar_path)
-		command.append(match[player]["class_name"])
+		command.append(player["class_name"])
 	
 	command.append(match["map"])
 	
@@ -30,19 +32,18 @@ def play_match(match):
 	print(command)
 	result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8", cwd=working_dir)
 	
-	try:
-		with zipfile.ZipFile(zip_path, 'r') as zf:
-			with zf.open('result.json', 'r') as json_file:
-				result_json = json.load(json_file)
-				print(result_json)
-				match["result"] = result_json
-	except Exception as e:
-		match["result"] = str(e)
+	with zipfile.ZipFile(zip_path, 'r') as zf:
+		with zf.open('result.json', 'r') as json_file:
+			result_json = json.load(json_file)
+			print(result_json)
+			match["result"] = result_json
 	
 	match["zip"] = zip_name
 	match["stdout"] = result.stdout
 	
 	db.match_history.insert_one(match)
+	
+	stats.update_stats(match)
 
 
 def main():

@@ -90,8 +90,10 @@ def generate_matches(bot_id):
 	for (bot_a, class_a, bot_b, class_b) in pairings:
 		for map_name in maps:
 			match = {
-				"player1": {"bot": bot_a["_id"], "head": bot_a["head"], "class_name": class_a},
-				"player2": {"bot": bot_b["_id"], "head": bot_a["head"], "class_name": class_b},
+				"players": [
+					{"bot": bot_a["_id"], "head": bot_a["head"], "class_name": class_a},
+					{"bot": bot_b["_id"], "head": bot_a["head"], "class_name": class_b}
+				],
 				"map": map_name,
 				"random": random.random()
 			}
