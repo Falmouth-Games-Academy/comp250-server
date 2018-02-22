@@ -22,8 +22,7 @@ mkdir tournament
 mkdir tournament/matches
 
 git clone https://github.com/Falmouth-Games-Academy/comp250-server.git
-
-cd comp250-server
-./run_server.sh
 ```
+
+Now go into `comp250-server` and run `./run_server.sh` and `python3 run_matches.py`.
 
