@@ -104,7 +104,7 @@ def generate_matches(bot_id):
 def pull_and_build(bot):
 	delete_matches(bot["_id"])
 	
-	clone_path = os.path.join("..", "tournament", bot["_id"].replace("/", "+"))
+	clone_path = os.path.join("..", "tournament", bot["_id"])
 	commands = []
 	
 	if not os.path.exists(clone_path):
@@ -123,7 +123,7 @@ def pull_and_build(bot):
 			["git", "reset", "--hard", bot["head"]]
 		]
 	
-	jar_name = bot["_id"].replace("/", "+") + "+" + bot["head"][:10] + ".jar"
+	jar_name = bot["_id"] + "+" + bot["head"][:10] + ".jar"
 
 	commands += [
 		["ant", "-buildfile", "bot", "clean", "build", "jar"],
@@ -178,17 +178,17 @@ def hook():
 	success, log = authenticate(json)
 
 	if success:
-		repo_name = json["repository"]["full_name"]
-		existing_bot = db.bots.find_one({"_id": repo_name})
+		bot_id = json["repository"]["full_name"].replace('/', '+')
+		existing_bot = db.bots.find_one({"_id": bot_id})
 		
 		if existing_bot is None:
-			existing_bot = {"_id": repo_name}
+			existing_bot = {"_id": bot_id}
 		
 		existing_bot["repository"] = json["repository"]
 		existing_bot["head"] = json["after"]
 		existing_bot["status"] = "building"
 		
-		db.bots.replace_one({"_id": repo_name}, existing_bot, upsert=True)
+		db.bots.replace_one({"_id": bot_id}, existing_bot, upsert=True)
 		
 		worker.enqueue(pull_and_build, existing_bot)
 	else:

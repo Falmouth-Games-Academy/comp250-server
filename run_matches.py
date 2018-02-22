@@ -16,7 +16,7 @@ def play_match(match):
 	command = ["java", "-cp", "microrts.jar:lib/*", "comp250.PlaySingleMatch"]
 	
 	for player in match["players"]:
-		jar_name = player["bot"].replace('/', '+') + '+' + player["head"][:10] + '.jar'
+		jar_name = player["bot"] + '+' + player["head"][:10] + '.jar'
 		jar_path = os.path.join("..", "tournament", jar_name)
 		command.append(jar_path)
 		command.append(player["class_name"])
