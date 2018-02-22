@@ -76,25 +76,46 @@ def pull_and_build(bot):
 			["git", "fetch"],
 			["git", "reset", "--hard", bot["head"]]
 		]
+	
+	jar_name = bot["_id"].replace("/", "+") + "+" + bot["head"][:10] + ".jar"
 
 	commands += [
 		["ant", "-buildfile", "bot", "clean", "build", "jar"],
 		["cp", "-v", os.path.join("bot", "bot.jar"),
-			os.path.join("..", bot["_id"].replace("/", "+") + "+" + bot["head"][:10] + ".jar")]
+			os.path.join("..", jar_name)]
 	]
 
 	success, build_log = run_commands(clone_path, commands)
-	
+
+	if success:
+		command = ["java", "-cp", "microrts.jar:lib/*", "comp250.ListTournamentAIsInJar",
+			os.path.join("..", "tournament", jar_name)]
+		working_dir = os.path.join("..", "comp250-microrts")
+		
+		result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8", cwd=working_dir)
+		if result.returncode == 0:
+			class_names = [name for name in result.stdout.split('\n') if name != ""]
+			print(class_names)
+		else:
+			class_names = []
+			build_log += '-' * 80
+			build_log += "\nListTournamentAIsInJar failed:\n"
+			build_log += result.stderr
+			print(result.stderr)
+			success = False
+		
 	status = "ready" if success else "error"
 	
 	db.bots.update_one(
 		{"_id": bot["_id"]},
 		{"$set": {
 			"status": status,
-			"build_log": build_log
+			"build_log": build_log,
+			"class_names": class_names
 		}
 	})
 
+	print("pull_and_build finished")
 	return success
 
 @app.route("/")
