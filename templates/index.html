@@ -17,9 +17,10 @@
 			</tr>
 			{% for stat in stats %}
 				<tr>
-					<td>{{ stat.author }}</td>
-					<td>{{ stat.repo_name }}</td>
-					<td>{{ stat.class_name }}</td>
+					{% set id_parts = stat._id.split('+') %}
+					<td>{{ id_parts[0] }}</td>
+					<td>{{ id_parts[1] }}</td>
+					<td>{{ id_parts[2] }}</td>
 					<td>{{ stat.elo | round | int }}</td>
 					<td>{{ stat.won }}</td>
 					<td>{{ stat.drawn }}</td>
