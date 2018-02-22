@@ -4,6 +4,7 @@ import subprocess
 import os
 import urllib
 import json
+import random
 from urllib.parse import urlparse
 
 from worker import WorkerThread
@@ -57,7 +58,48 @@ def authenticate(bot):
 	
 	return True, ""
 
+with open("maps.txt", "rt") as maps_file:
+	maps = [name.strip() for name in maps_file if name.strip() != ""]
+
+def delete_matches(bot_id):
+	result = db.match_queue.delete_many({"player1.bot": bot_id})
+	print("Deleted", result.deleted_count, "queued matches")
+	result = db.match_queue.delete_many({"player2.bot": bot_id})
+	print("Deleted", result.deleted_count, "queued matches")
+
+def generate_matches(bot_id):
+	global maps
+	
+	bot = db.bots.find_one({"_id": bot_id})
+	other_bots = [b for b in db.bots.find() if b["_id"] != bot_id]
+	
+	pairings = []
+
+	# Matches between classes within the bot
+	for class_a in bot["class_names"]:
+		for class_b in bot["class_names"]:
+			if class_a != class_b:
+				pairings.append((bot_id, class_a, bot_id, class_b))
+
+	# Matches between different bots
+	for class_a in bot["class_names"]:
+		for bot_b in other_bots:
+			for class_b in bot_b["class_names"]:
+				pairings.append((bot_id, class_a, bot_b["_id"], class_b))
+	
+	for (bot_a, class_a, bot_b, class_b) in pairings:
+		for map_name in maps:
+			match = {
+				"player1": {"bot": bot_a, "class_name": class_a},
+				"player2": {"bot": bot_b, "class_name": class_b},
+				"map": map_name,
+				"random": random.random()
+			}
+			db.match_queue.insert_one(match)
+
 def pull_and_build(bot):
+	delete_matches(bot["_id"])
+	
 	clone_path = os.path.join("..", "tournament", bot["_id"].replace("/", "+"))
 	commands = []
 	
@@ -114,13 +156,15 @@ def pull_and_build(bot):
 			"class_names": class_names
 		}
 	})
-
+	
+	if success:
+		generate_matches(bot["_id"])
+	
 	print("pull_and_build finished")
 	return success
 
 @app.route("/")
 def hello():
-	print("hhmm")
 	return "Hello World!"
 
 @app.route("/hook", methods=['POST'])
