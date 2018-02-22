@@ -1,6 +1,32 @@
 # comp250-server
 
-## Setup (on Windows)
+## Setup (on Ubuntu)
+
+```
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt-get install oracle-java8-installer
+
+sudo apt-get install python3-pip python3-twisted mongodb git ant
+pip3 install flask pymongo
+
+sudo ufw enable
+sudo ufw allow 8000
+
+git clone https://github.com/Falmouth-Games-Academy/comp250-microrts.git
+cd comp250-microrts
+ant clean build jar
+cd ..
+
+mkdir tournament
+
+git clone https://github.com/Falmouth-Games-Academy/comp250-server.git
+
+cd comp250-server
+./run_server.sh
+```
+
+## Setup (on Windows -- no longer supported)
 
 * Install prerequisites:
 	* Python 3.x
@@ -16,31 +42,10 @@
 * Execute `run_mongod.bat`
 * Execute `run_server.bat`
 
-## Setup (on Ubuntu)
-
-* Install Oracle Java 8:
-```
-sudo add-apt-repository ppa:webupd8team/java
-sudo apt-get update
-sudo apt-get install oracle-java8-installer
-```
-* Install other prerequisites:
-```
-sudo apt-get install python3-pip python3-twisted mongodb git ant
-pip install flask pymongo
-```
-* Allow port 8000 through the firewall:
-```
-sudo ufw enable
-sudo ufw allow 8000
-```
-* Clone this repo
-* `mkdir tournament`
-* Execute `run_server.sh`
-
 ## References
 
 For `run_server.bat`:
 * http://flask.pocoo.org/docs/0.12/deploying/wsgi-standalone/
 * https://stackoverflow.com/questions/40012956/flask-app-is-not-start-over-twisted-16-4-x-as-wsgi
 * https://github.com/robgjansen/onionperf/issues/26
+
