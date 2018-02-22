@@ -23,5 +23,8 @@ class WorkerThread(threading.Thread):
 	def run(self):
 		while True:
 			item = self.queue.get() # Blocks until an item is available
-			item.run()
+			try:
+				item.run()
+			except Exception as e:
+				print(e)
 
