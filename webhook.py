@@ -58,9 +58,7 @@ def authenticate(bot):
 	return True, ""
 
 def delete_matches(bot_id):
-	result = db.match_queue.delete_many({"player1.bot": bot_id})
-	print("Deleted", result.deleted_count, "queued matches")
-	result = db.match_queue.delete_many({"player2.bot": bot_id})
+	result = db.match_queue.delete_many({"players.bot": bot_id})
 	print("Deleted", result.deleted_count, "queued matches")
 
 def generate_matches(bot_id):
@@ -96,6 +94,7 @@ def generate_matches(bot_id):
 			db.match_queue.insert_one(match)
 
 	db.match_queue.create_index("random")
+	db.match_queue.create_index("players.bot")
 
 def pull_and_build(bot):
 	delete_matches(bot["_id"])

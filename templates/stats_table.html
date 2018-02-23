@@ -1,0 +1,30 @@
+<table class="stats">
+	<tr>
+		{% if stats_show_project %}
+			<th>Author</th>
+			<th>Project name</th>
+		{% endif %}
+		<th>Class name</th>
+		<th>Elo rating</th>
+		<th>Won</th>
+		<th>Drawn</th>
+		<th>Lost</th>
+		<th>Disqualified</th>
+	</tr>
+	{% for stat in stats %}
+		<tr>
+			{% set author, repo_name, class_name = stat._id.split('+') %}
+			{% if stats_show_project %}
+				<td>{{ author }}</td>
+				<td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
+			{% endif %}
+			<td><a href="/history/{{ stat._id }}">{{ class_name }}</a></td>
+			<td>{{ stat.elo | round | int }}</td>
+			<td>{{ stat.won }}</td>
+			<td>{{ stat.drawn }}</td>
+			<td>{{ stat.lost }}</td>
+			<td>{{ stat.disqualified }}</td>
+		</tr>
+	{% endfor %}
+</table>
+

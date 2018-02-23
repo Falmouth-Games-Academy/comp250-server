@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+	<head>
+		<title>COMP250 MicroRTS server --- {{ bot._id }}</title>
+		<link rel="stylesheet" href="/static/style.css"/>
+	</head>
+	<body>
+		<table class="keyval">
+			<tr>
+				<th>Project name</th>
+				<td>{{ bot.repository.name }}</td>
+			</tr>
+			<tr>
+				<th>Author</th>
+				<td>{{ bot.repository.owner.name }}</td>
+			</tr>
+			<tr>
+				<th>GitHub repository</th>
+				<td><a href="{{ bot.repository.url }}">{{ bot.repository.url }}</a></td>
+			</tr>
+			<tr>
+				<th>Status</th>
+				<td>{{ bot.status }}</td>
+			</tr>
+			<tr>
+				<th>Build log</th>
+				<td><pre class="log">{{ bot.build_log }}</pre></td>
+			</tr>
+		</table>
+		{% include "stats_table.html" %}
+	</body>
+</html>
+
