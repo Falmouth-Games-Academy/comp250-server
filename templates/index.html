@@ -1,12 +1,7 @@
-<!doctype html>
-<html>
-	<head>
-		<title>COMP250 MicroRTS server</title>
-		<link rel="stylesheet" href="/static/style.css"/>
-	</head>
-	<body>
-		{% set stats_show_project = True %}
-		{% include "stats_table.html" %}
-	</body>
-</html>
+{% extends "base.html" %}
+{% block nav %}{% endblock %}
+{% block body %}
+	{% set stats_show_project = True %}
+	{% include "stats_table.html" %}
+{% endblock %}
 

@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+	<head>
+		<title>{% block title %}COMP250 MicroRTS server{% endblock %}</title>
+		<link rel="stylesheet" href="/static/style.css"/>
+	</head>
+	<body>
+		<h1>{{ self.title() }}</h1>
+		{% block nav %}
+			<div class="nav">
+				<a href="/">Back to leaderboard</a>
+			</div>
+		{% endblock %}
+		{% block body %}{% endblock %}
+	</body>
+</html>
+
