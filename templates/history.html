@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+	<head>
+		<title>COMP250 MicroRTS server</title>
+		<link rel="stylesheet" href="/static/style.css"/>
+	</head>
+	<body>
+		<table class="stats">
+			<tr>
+				<th>Player 1</th>
+				<th>Player 2</th>
+				<th>Map</th>
+				<th>Result</th>
+				<th>Trace</th>
+			</tr>
+			{% for match in matches %}
+				<tr>
+					{% for player in match.players %}
+						<td class="{{ 'emphasis' if player.is_me else '' }}">
+							{{ player.bot }}<br/>
+							{{ player.class_name }}
+						</td>
+					{% endfor %}
+					<td>{{ match.map }}</td>
+					{% if match.result.winner == 0 %}
+						<td class="draw">Draw</td>
+					{% elif match.players[match.result.winner-1].is_me %}
+						<td class="win">P{{ match.result.winner }} win</td>
+					{% else %}
+						<td class="loss">P{{ match.result.winner }} win</td>
+					{% endif %}
+					</td>
+					<td>{{ match.zip }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</body>
+</html>
+

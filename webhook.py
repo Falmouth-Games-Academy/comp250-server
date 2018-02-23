@@ -8,10 +8,7 @@ from urllib.parse import urlparse
 
 from worker import WorkerThread
 from server import app
-from db import db
-
-with open("maps.txt", "rt") as maps_file:
-	maps = [name.strip() for name in maps_file if name.strip() != ""]
+from db import db, maps
 
 worker = WorkerThread()
 worker.daemon = True

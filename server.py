@@ -1,7 +1,7 @@
 import flask
 import pymongo
 
-from db import db
+from db import db, maps
 import stats
 
 app = flask.Flask(__name__)
@@ -23,6 +23,22 @@ def bot_info(bot_id):
 		return flask.render_template("bot_info.html", bot=bot, stats=bot_stats)
 	else:
 		return flask.render_template("error.html", message="No bot named '%s'" % bot_id)
+
+
+@app.route("/history/<bot_class_id>")
+def history(bot_class_id):
+	author, bot_id, class_name = bot_class_id.split('+')
+	bot_id = author + '+' + bot_id
+
+	matches = []
+	for match in db.match_history.find({"players.bot": bot_id}):
+		for player in match["players"]:
+			if player["bot"] == bot_id and player["class_name"] == class_name:
+				player["is_me"] = True
+				matches.append(match)
+				break
+	
+	return flask.render_template("history.html", matches=matches)
 
 
 @app.route("/static/<path:path>")

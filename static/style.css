@@ -16,6 +16,10 @@ th {
     font-weight: bold;
 }
 
+td.emphasis {
+	font-weight: bold;
+}
+
 table.stats td {  
     text-align: center;
 }
@@ -29,6 +33,10 @@ tr:nth-child(even) td { background: #F1F1F1; }
 
 /* Cells in odd rows (1,3,5...) are another (excludes header cells)  */        
 tr:nth-child(odd) td { background: #FEFEFE; }  
+
+tr td.win { background: #CFC; }
+tr td.loss { background: #FCC; }
+tr td.draw { background: #FFC; }
 
 pre.log {
 	text-align: left;
