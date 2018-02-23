@@ -62,7 +62,7 @@ def generate_matches(bot_id):
 	global maps
 	
 	bot = db.bots.find_one({"_id": bot_id})
-	other_bots = [b for b in db.bots.find() if b["_id"] != bot_id]
+	other_bots = db.bots.find({"_id": {"$ne": bot_id}})
 	
 	pairings = []
 
@@ -70,28 +70,25 @@ def generate_matches(bot_id):
 	for class_a in bot["class_names"]:
 		for class_b in bot["class_names"]:
 			if class_a != class_b:
-				pairings.append((bot, class_a, bot, class_b))
+				pairings.append((bot_id + '+' + class_a, bot_id + '+' + class_b))
 
 	# Matches between different bots
 	for class_a in bot["class_names"]:
 		for bot_b in other_bots:
 			for class_b in bot_b["class_names"]:
-				pairings.append((bot, class_a, bot_b, class_b))
+				pairings.append((bot_id + '+' + class_a, bot_b["_id"] + '+' + class_b))
 	
-	for (bot_a, class_a, bot_b, class_b) in pairings:
+	for pairing in pairings:
 		for map_name in maps:
 			match = {
-				"players": [
-					{"bot": bot_a["_id"], "head": bot_a["head"], "class_name": class_a},
-					{"bot": bot_b["_id"], "head": bot_a["head"], "class_name": class_b}
-				],
+				"players": list(pairing),
 				"map": map_name,
 				"random": random.random()
 			}
 			db.match_queue.insert_one(match)
 
 	db.match_queue.create_index("random")
-	db.match_queue.create_index("players.bot")
+	db.match_queue.create_index("players")
 
 def pull_and_build(bot):
 	delete_matches(bot["_id"])

@@ -5,27 +5,44 @@
 			<th>Player 1</th>
 			<th>Player 2</th>
 			<th>Map</th>
+			<th>End time</th>
+			<th>Duration (time)</th>
+			<th>Duration (ticks)</th>
 			<th>Result</th>
 			<th>Trace</th>
 		</tr>
 		{% for match in matches %}
 			<tr>
 				{% for player in match.players %}
-					<td class="{{ 'emphasis' if player.is_me else '' }}">
-						{{ player.bot }}<br/>
-						{{ player.class_name }}
+					<td class="{{ 'emphasis' if (loop.index0 == match.this_player_index) else '' }}">
+						{% set author, repo_name, class_name = player.split('+') %}
+						{{ author }}<br />
+						<a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a><br />
+						<a href="/history/{{ author }}+{{ repo_name }}+{{ class_name }}">{{ class_name }}</a>
 					</td>
 				{% endfor %}
-				<td>{{ match.map }}</td>
-				{% if match.result.winner == 0 %}
-					<td class="draw">Draw</td>
-				{% elif match.players[match.result.winner-1].is_me %}
-					<td class="win">P{{ match.result.winner }} win</td>
+				<td>{{ match.map_short }}</td>
+
+				{% if match.is_queued %}
+					<td colspan="5">Queued</td>
 				{% else %}
-					<td class="loss">P{{ match.result.winner }} win</td>
+					<td>{{ match.end_time }}</td>
+					{% if match.end_time %}
+						<td>{{ match.end_time - match.start_time }}</td>
+					{% else %}
+						<td></td>
+					{% endif %}
+					<td>{{ match.result.duration }}</td>
+					{% if match.result.winner == 0 %}
+						<td class="draw">Draw</td>
+					{% elif match.result.winner-1 == match.this_player_index %}
+						<td class="win">P{{ match.result.winner }} win</td>
+					{% else %}
+						<td class="loss">P{{ match.result.winner }} win</td>
+					{% endif %}
+					</td>
+					<td><a href="/trace_dl/{{ match.zip }}">Download</a></td>
 				{% endif %}
-				</td>
-				<td><a href="/trace_dl/{{ match.zip }}">Download</a></td>
 			</tr>
 		{% endfor %}
 	</table>

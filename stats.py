@@ -1,7 +1,6 @@
 from db import db
 
-def get_stats(player):
-	player_id = player["bot"] + '+' + player["class_name"]
+def get_stats(player_id):
 	result = db.stats.find_one({"_id": player_id})
 	if result is None:
 		result = {
