@@ -41,6 +41,10 @@ def history(bot_class_id):
 	return flask.render_template("history.html", matches=matches)
 
 
+@app.route("/trace_dl/<zipname>")
+def trace_download(zipname):
+	return flask.send_from_directory("../tournament/matches", zipname)
+
 @app.route("/static/<path:path>")
 def static_file(path):
 	return flask.send_from_directory("static", path)
