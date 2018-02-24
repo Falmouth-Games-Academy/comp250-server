@@ -45,17 +45,18 @@ def is_github_url(url):
 def authenticate(bot):
     if not is_github_url(bot["repository"]["clone_url"]):
         return False, "Cannot clone from a non-GitHub URL"
-
-    orgs_url = bot["repository"]["owner"]["organizations_url"]
-    if not is_github_url(orgs_url):
-        return False, "You are not a member of Falmouth-Games-Academy"
-
-    with urllib.request.urlopen(orgs_url) as resp:
-        orgs = json.load(resp)
-
-    if not any(o["login"] == "Falmouth-Games-Academy" for o in orgs):
-        return False, "You are not a member of Falmouth-Games-Academy"
-
+    
+    if bot["repository"]["owner"]["name"] != "Falmouth-Games-Academy":
+        orgs_url = bot["repository"]["owner"]["organizations_url"]
+        if not is_github_url(orgs_url):
+            return False, "You are not a member of Falmouth-Games-Academy"
+    
+        with urllib.request.urlopen(orgs_url) as resp:
+            orgs = json.load(resp)
+    
+        if not any(o["login"] == "Falmouth-Games-Academy" for o in orgs):
+            return False, "You are not a member of Falmouth-Games-Academy"
+    
     return True, ""
 
 
@@ -170,6 +171,9 @@ def pull_and_build(bot):
 def hook():
     request_json = flask.request.get_json()
     
+    if "zen" in request_json: # ping
+        return "pong"
+    
     if request_json["ref"] == "refs/heads/master":
         success, log = authenticate(request_json)
     
@@ -195,17 +199,22 @@ def hook():
 
 def update_all_bots():
     for bot in db.bots.find({}):
-        try:
-            branch_url = bot["repository"]["branches_url"].replace("{/branch}", "/master")
-            with urllib.request.urlopen(branch_url) as resp:
-                branch = json.load(resp)
-            if branch["commit"]["sha"] != bot["head"]:
-                print("Updating", bot["_id"])
-                bot["head"] = branch["commit"]["sha"]
-                db.bots.replace_one({"_id": bot["_id"]}, bot)
-                pull_and_build(bot)
-            else:
-                print(bot["_id"], "is up to date")
-        except KeyError as e:
-            print("Error updating", bot["_id"])
-            print(e)
+        clone_path = os.path.join("..", "tournament", bot["_id"])
+        if not os.path.exists(clone_path):
+            print("Forcing update for", bot["_id"])
+            pull_and_build(bot)
+        else:
+            try:
+                branch_url = bot["repository"]["branches_url"].replace("{/branch}", "/master")
+                with urllib.request.urlopen(branch_url) as resp:
+                    branch = json.load(resp)
+                if branch["commit"]["sha"] != bot["head"]:
+                    print("Updating", bot["_id"])
+                    bot["head"] = branch["commit"]["sha"]
+                    db.bots.replace_one({"_id": bot["_id"]}, bot)
+                    pull_and_build(bot)
+                else:
+                    print(bot["_id"], "is up to date")
+            except KeyError as e:
+                print("Error updating", bot["_id"])
+                print(e)

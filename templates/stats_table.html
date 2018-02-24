@@ -37,9 +37,12 @@
 	{% if stats_show_project %}
 		{% for bot in unready_bots %}
 			{% set author, repo_name = bot._id.split('+') %}
-			<td>{{ author }}</td>
+			<td class="author">
+                <img class="avatar" src="{{ bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
+                {{ author }}
+            </td>
 			<td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
-			<td colspan="7">{{ bot.status }}</td>
+			<td colspan="8">{{ bot.status }}</td>
 		{% endfor %}
 	{% endif %}
 		
