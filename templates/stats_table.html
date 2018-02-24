@@ -5,7 +5,8 @@
 			<th>Project name</th>
 		{% endif %}
 		<th>Class name</th>
-		<th>Elo rating (higher = better)</th>
+		<th>Elo rating</th>
+        <th>Played</th>
 		<th>Won</th>
 		<th>Drawn</th>
 		<th>Lost</th>
@@ -16,11 +17,15 @@
 		<tr>
 			{% set author, repo_name, class_name = stat._id.split('+') %}
 			{% if stats_show_project %}
-				<td>{{ author }}</td>
+                <td class="author">
+                    <img class="avatar" src="{{ stat.bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
+				    {{ author }}
+                </td>
 				<td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
 			{% endif %}
 			<td><a href="/history/{{ stat._id }}">{{ class_name }}</a></td>
 			<td>{{ stat.elo | round | int }}</td>
+            <td>{{ stat.won + stat.drawn + stat.lost + stat.disqualified }}</td>
 			<td>{{ stat.won }}</td>
 			<td>{{ stat.drawn }}</td>
 			<td>{{ stat.lost }}</td>

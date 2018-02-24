@@ -7,7 +7,10 @@
 		</tr>
 		<tr>
 			<th>Author</th>
-			<td>{{ bot.repository.owner.name }}</td>
+			<td>
+                <img class="avatar" src="{{ bot.repository.owner.avatar_url }}" alt="{{ bot.repository.owner.name }}"/>
+                {{ bot.repository.owner.name }}
+            </td>
 		</tr>
 		<tr>
 			<th>GitHub repository</th>

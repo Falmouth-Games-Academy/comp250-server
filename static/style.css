@@ -6,12 +6,12 @@ table {
     color: #333;
     width: 100%; 
     border-collapse: collapse;
-	border-spacing: 0; 
+    border-spacing: 0;
 }
 
 td, th {  
     border: 1px solid #CCC;
-	padding: 5px;
+    padding: 5px;
 }
 
 th {  
@@ -20,15 +20,19 @@ th {
 }
 
 td.emphasis {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 table.stats td {  
     text-align: center;
 }
 
+table.stats td.author {
+    text-align: left;
+}
+
 table.keyval td {
-	text-align: left;
+    text-align: left;
 }
 
 /* Cells in even rows (2,4,6...) are one color */        
@@ -42,10 +46,14 @@ tr td.loss { background: #FCC; }
 tr td.draw { background: #FFC; }
 
 pre.log {
-	text-align: left;
-	white-space: pre-wrap;
-	width: 100%;
-	height: 500px;
-	overflow: auto;
+    text-align: left;
+    white-space: pre-wrap;
+    width: 100%;
+    height: 500px;
+    overflow: auto;
 }
 
+img.avatar {
+    height: 48px;
+    vertical-align: middle;
+}

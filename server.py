@@ -13,6 +13,10 @@ def leaderboard():
              for bot in db.bots.find({})
              for class_name in bot["class_names"]]
     
+    for stat in stats:
+        author, bot_id, class_name = stat["_id"].split('+')
+        stat["bot"] = db.bots.find_one({"_id": author + '+' + bot_id})
+    
     stats.sort(key=lambda s: s["elo"], reverse=True)
     
     unready_bots = list(db.bots.find({"status": {"$ne": "ready"}}))
