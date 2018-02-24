@@ -7,7 +7,7 @@ import subprocess
 import datetime
 
 from db import db
-import stats
+import statistics
 
 
 def play_match(match):
@@ -54,7 +54,7 @@ def play_match(match):
     db.match_history.insert_one(match)
     db.match_history.create_index("players")
 
-    stats.update_stats(match)
+    statistics.update_stats(match)
 
 
 def main():

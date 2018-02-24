@@ -100,7 +100,6 @@ def pull_and_build(bot):
     delete_matches(bot["_id"])
 
     clone_path = os.path.join("..", "tournament", bot["_id"])
-    commands = []
 
     if not os.path.exists(clone_path):
         os.mkdir(clone_path)
@@ -166,26 +165,44 @@ def pull_and_build(bot):
 
 @app.route("/hook", methods=['POST'])
 def hook():
-    json = flask.request.get_json()
-
-    success, log = authenticate(json)
-
-    if success:
-        bot_id = json["repository"]["full_name"].replace('/', '+')
-        existing_bot = db.bots.find_one({"_id": bot_id})
-
-        if existing_bot is None:
-            existing_bot = {"_id": bot_id}
-
-        existing_bot["repository"] = json["repository"]
-        existing_bot["head"] = json["after"]
-        existing_bot["status"] = "building"
-
-        db.bots.replace_one({"_id": bot_id}, existing_bot, upsert=True)
-
-        worker.enqueue(pull_and_build, existing_bot)
-    else:
-        print(log)
+    request_json = flask.request.get_json()
+    
+    if request_json["ref"] == "refs/heads/master":
+        success, log = authenticate(request_json)
+    
+        if success:
+            bot_id = request_json["repository"]["full_name"].replace('/', '+')
+            existing_bot = db.bots.find_one({"_id": bot_id})
+    
+            if existing_bot is None:
+                existing_bot = {"_id": bot_id}
+    
+            existing_bot["repository"] = request_json["repository"]
+            existing_bot["head"] = request_json["after"]
+            existing_bot["status"] = "building"
+    
+            db.bots.replace_one({"_id": bot_id}, existing_bot, upsert=True)
+    
+            worker.enqueue(pull_and_build, existing_bot)
+        else:
+            print(log)
 
     return ""
 
+
+def update_all_bots():
+    for bot in db.bots.find({}):
+        try:
+            branch_url = bot["repository"]["branches_url"].replace("{/branch}", "/master")
+            with urllib.request.urlopen(branch_url) as resp:
+                branch = json.load(resp)
+            if branch["commit"]["sha"] != bot["head"]:
+                print("Updating", bot["_id"])
+                bot["head"] = branch["commit"]["sha"]
+                db.bots.replace_one({"_id": bot["_id"]}, bot)
+                pull_and_build(bot)
+            else:
+                print(bot["_id"], "is up to date")
+        except KeyError as e:
+            print("Error updating", bot["_id"])
+            print(e)

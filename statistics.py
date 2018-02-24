@@ -12,7 +12,9 @@ def get_stats(player_id):
             "drawn": 0,
             "disqualified": 0
         }
-
+    
+    result["queued"] = db.queued_matches.find({"players": player_id}).count()
+    
     return result
 
 
@@ -26,7 +28,8 @@ def update_stats(match):
     winner = match["result"]["winner"]
 
     # Update elo and win/draw/loss counts
-    # Elo calculation based on https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
+    # Elo calculation based on:
+    # https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
     rating = [10.0 ** (stat["elo"] / 400.0) for stat in stats]
 
     for i in range(len(stats)):

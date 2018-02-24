@@ -1,17 +1,20 @@
 import flask
-import pymongo
 import os
 
-from db import db, maps
-import stats
+from db import db
+import statistics
 
 app = flask.Flask(__name__)
 
 
 @app.route("/")
 def leaderboard():
-    stats = list(db.stats.find({}, sort=[("elo", pymongo.DESCENDING)]))
-
+    stats = [statistics.get_stats(bot["_id"] + '+' + class_name)
+             for bot in db.bots.find({})
+             for class_name in bot["class_names"]]
+    
+    stats.sort(key=lambda s: s["elo"], reverse=True)
+    
     unready_bots = list(db.bots.find({"status": {"$ne": "ready"}}))
 
     return flask.render_template("index.html", stats=stats, unready_bots=unready_bots)
@@ -22,7 +25,7 @@ def bot_info(bot_id):
     bot = db.bots.find_one({"_id": bot_id})
 
     if bot is not None:
-        bot_stats = [stats.get_stats(bot_id + '+' + class_name) for class_name in bot["class_names"]]
+        bot_stats = [statistics.get_stats(bot_id + '+' + class_name) for class_name in bot["class_names"]]
         bot_stats.sort(key = lambda s: s["elo"], reverse = True)
         return flask.render_template("bot_info.html", bot=bot, stats=bot_stats)
     else:
@@ -59,3 +62,5 @@ def static_file(path):
 # Import other app routes
 import webhook
 
+
+webhook.update_all_bots()

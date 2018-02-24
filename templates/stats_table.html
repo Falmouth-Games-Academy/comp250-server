@@ -5,11 +5,12 @@
 			<th>Project name</th>
 		{% endif %}
 		<th>Class name</th>
-		<th>Elo rating</th>
+		<th>Elo rating (higher = better)</th>
 		<th>Won</th>
 		<th>Drawn</th>
 		<th>Lost</th>
 		<th>Disqualified</th>
+        <th>Queued</th>
 	</tr>
 	{% for stat in stats %}
 		<tr>
@@ -24,6 +25,7 @@
 			<td>{{ stat.drawn }}</td>
 			<td>{{ stat.lost }}</td>
 			<td>{{ stat.disqualified }}</td>
+            <td>{{ stat.queued }}</td>
 		</tr>
 	{% endfor %}
 
@@ -32,7 +34,7 @@
 			{% set author, repo_name = bot._id.split('+') %}
 			<td>{{ author }}</td>
 			<td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
-			<td colspan="6">{{ bot.status }}</td>
+			<td colspan="7">{{ bot.status }}</td>
 		{% endfor %}
 	{% endif %}
 		
