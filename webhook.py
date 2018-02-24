@@ -4,6 +4,7 @@ import os
 import urllib
 import json
 import random
+import re
 from urllib.parse import urlparse
 
 from worker import WorkerThread
@@ -59,7 +60,9 @@ def authenticate(bot):
 
 
 def delete_matches(bot_id):
-    result = db.match_queue.delete_many({"players.bot": bot_id})
+    # Search for matches where the player name begins with "{bot_id}+"
+    regex = "^" + re.escape(bot_id) + r"\+"
+    result = db.match_queue.delete_many({"players": {"$regex": regex}})
     print("Deleted", result.deleted_count, "queued matches")
 
 

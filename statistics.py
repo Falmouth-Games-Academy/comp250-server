@@ -13,7 +13,7 @@ def get_stats(player_id):
             "disqualified": 0
         }
     
-    result["queued"] = db.queued_matches.find({"players": player_id}).count()
+    result["queued"] = db.match_queue.find({"players": player_id}).count()
     
     return result
 
