@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 from worker import WorkerThread
 from server import app
-from db import db, maps
+from db import db
 
 worker = WorkerThread()
 worker.daemon = True
@@ -68,13 +68,13 @@ def delete_matches(bot_id):
 
 
 def generate_matches(bot_id):
-    global maps
+    from db import maps
 
     bot = db.bots.find_one({"_id": bot_id})
-    other_bots = db.bots.find({"_id": {"$ne": bot_id}})
+    other_bots = list(db.bots.find({"_id": {"$ne": bot_id}}))
 
     pairings = []
-
+    
     # Matches between classes within the bot
     for class_a in bot["class_names"]:
         for class_b in bot["class_names"]:
@@ -86,7 +86,11 @@ def generate_matches(bot_id):
         for bot_b in other_bots:
             for class_b in bot_b["class_names"]:
                 pairings.append((bot_id + '+' + class_a, bot_b["_id"] + '+' + class_b))
+                pairings.append((bot_b["_id"] + '+' + class_b, bot_id + '+' + class_a))
 
+    from pprint import pprint
+    pprint(pairings)
+    
     for pairing in pairings:
         for map_name in maps:
             match = {
