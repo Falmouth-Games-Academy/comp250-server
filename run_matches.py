@@ -53,8 +53,9 @@ def play_match(match):
 
     db.match_history.insert_one(match)
     db.match_history.create_index("players")
+    db.match_history.create_index("end_time")
 
-    statistics.update_stats(match)
+    statistics.update_stats([match])
 
 
 def main():

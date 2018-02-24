@@ -1,4 +1,5 @@
 from db import db
+import pymongo
 
 
 def get_stats(player_id):
@@ -22,36 +23,48 @@ def set_stats(stats):
     db.stats.replace_one({"_id": stats["_id"]}, stats, upsert=True)
 
 
-def update_stats(match):
-    stats = [get_stats(player) for player in match["players"]]
+def update_stats(matches):
+    touched_stats = {}
+    
+    for match in matches:
+        for player in match["players"]:
+            if player not in touched_stats:
+                touched_stats[player] = get_stats(player)
+        
+        player_stats = [touched_stats[player] for player in match["players"]]
+        
+        winner = match["result"]["winner"]
+    
+        # Update elo and win/draw/loss counts
+        # Elo calculation based on:
+        # https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
+        rating = [10.0 ** (stat["elo"] / 400.0) for stat in player_stats]
+    
+        for i in range(len(player_stats)):
+            expected = rating[i] / sum(rating)
+            if winner == 0:
+                player_stats[i]["drawn"] += 1
+                actual = 0.5
+            elif winner == i+1:
+                player_stats[i]["won"] += 1
+                actual = 1.0
+            else:
+                player_stats[i]["lost"] += 1
+                actual = 0.0
 
-    winner = match["result"]["winner"]
-
-    # Update elo and win/draw/loss counts
-    # Elo calculation based on:
-    # https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/
-    rating = [10.0 ** (stat["elo"] / 400.0) for stat in stats]
-
-    for i in range(len(stats)):
-        expected = rating[i] / sum(rating)
-        if winner == 0:
-            stats[i]["drawn"] += 1
-            actual = 0.5
-        elif winner == i+1:
-            stats[i]["won"] += 1
-            actual = 1.0
-        else:
-            stats[i]["lost"] += 1
-            actual = 0.0
-
-        stats[i]["elo"] += 32 * (actual - expected)
-
-    if "disqualified" in match["result"]:
-        i = match["result"]["disqualified"] - 1
-        stats[i]["lost"] -= 1
-        stats[i]["disqualified"] += 1
-
-    for stat in stats:
+            player_stats[i]["elo"] += 32 * (actual - expected)
+    
+        if "disqualified" in match["result"]:
+            i = match["result"]["disqualified"] - 1
+            player_stats[i]["lost"] -= 1
+            player_stats[i]["disqualified"] += 1
+    
+    for stat in touched_stats.values():
         set_stats(stat)
 
 
+def reset_stats():
+    db.stats.drop()
+    
+    update_stats(db.match_history.find({}, sort=[("end_time", pymongo.ASCENDING)]))
+    

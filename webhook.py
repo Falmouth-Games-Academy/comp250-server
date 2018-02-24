@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from worker import WorkerThread
 from server import app
 from db import db
+import statistics
 
 worker = WorkerThread()
 worker.daemon = True
@@ -63,9 +64,15 @@ def authenticate(bot):
 def delete_matches(bot_id):
     # Search for matches where the player name begins with "{bot_id}+"
     regex = "^" + re.escape(bot_id) + r"\+"
+
     result = db.match_queue.delete_many({"players": {"$regex": regex}})
     print("Deleted", result.deleted_count, "queued matches")
 
+    result = db.match_history.delete_many({"players": {"$regex": regex}})
+    print("Deleted", result.deleted_count, "historical matches")
+    
+    statistics.reset_stats()
+    
 
 def generate_matches(bot_id):
     from db import maps
