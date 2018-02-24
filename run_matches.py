@@ -64,7 +64,6 @@ def main():
         if match is not None:
             play_match(match)
         else:
-            print("Waiting for matches")
             time.sleep(1)
 
 
