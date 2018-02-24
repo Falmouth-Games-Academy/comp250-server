@@ -42,6 +42,11 @@ def update_stats(match):
 		
 		stats[i]["elo"] += 32 * (actual - expected)
 	
+	if "disqualified" in match["result"]:
+		i = match["result"]["disqualified"] - 1
+		stats[i]["lost"] -= 1
+		stats[i]["disqualified"] += 1
+	
 	for stat in stats:
 		set_stats(stat)
 	

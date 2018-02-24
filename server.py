@@ -11,7 +11,9 @@ app = flask.Flask(__name__)
 def leaderboard():
 	stats = list(db.stats.find({}, sort=[("elo", pymongo.DESCENDING)]))
 	
-	return flask.render_template("index.html", stats=stats)
+	unready_bots = list(db.bots.find({"status": {"$ne": "ready"}}))
+	
+	return flask.render_template("index.html", stats=stats, unready_bots=unready_bots)
 
 
 @app.route("/bot/<bot_id>")

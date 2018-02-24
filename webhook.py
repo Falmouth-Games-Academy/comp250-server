@@ -121,7 +121,8 @@ def pull_and_build(bot):
 	]
 
 	success, build_log = run_commands(clone_path, commands)
-
+	class_names = []
+	
 	if success:
 		command = ["java", "-cp", "microrts.jar:lib/*", "comp250.ListTournamentAIsInJar",
 			os.path.join("..", "tournament", jar_name)]

@@ -21,27 +21,39 @@
 						<a href="/history/{{ author }}+{{ repo_name }}+{{ class_name }}">{{ class_name }}</a>
 					</td>
 				{% endfor %}
+
 				<td>{{ match.map_short }}</td>
 
 				{% if match.is_queued %}
 					<td colspan="5">Queued</td>
 				{% else %}
+
 					<td>{{ match.end_time }}</td>
+
 					{% if match.end_time %}
 						<td>{{ match.end_time - match.start_time }}</td>
 					{% else %}
 						<td></td>
 					{% endif %}
+
 					<td>{{ match.result.duration }}</td>
-					{% if match.result.winner == 0 %}
+
+					{% if match.result.disqualified %}
+						{% if match.result.disqualified-1 == match.this_player_index %}
+							<td class="loss">P{{ match.result.disqualified }} DQ</td>
+						{% else %}
+							<td class="win">P{{ match.result.disqualified }} DQ</td>
+						{% endif %}
+					{% elif match.result.winner == 0 %}
 						<td class="draw">Draw</td>
 					{% elif match.result.winner-1 == match.this_player_index %}
 						<td class="win">P{{ match.result.winner }} win</td>
 					{% else %}
 						<td class="loss">P{{ match.result.winner }} win</td>
 					{% endif %}
-					</td>
+
 					<td><a href="/trace_dl/{{ match.zip }}">Download</a></td>
+
 				{% endif %}
 			</tr>
 		{% endfor %}

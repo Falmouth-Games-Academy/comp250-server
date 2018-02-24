@@ -44,6 +44,10 @@ def play_match(match):
 			match["result"] = result_json
 		with zf.open('stdout.txt', 'w') as stdout_file:
 			stdout_file.write(result.stdout.encode('utf8'))
+		if "stackTrace" in result_json:
+			with zf.open('stack_trace.txt', 'w') as stack_trace_file:
+				stack_trace_file.write(result_json["stackTrace"].encode('utf8'))
+			
 	
 	match["zip"] = zip_name
 	match["start_time"] = start_time
