@@ -48,16 +48,11 @@ def authenticate(bot):
         return False, "Cannot clone from a non-GitHub URL"
     
     if bot["repository"]["owner"]["name"] != "Falmouth-Games-Academy":
-        orgs_url = bot["repository"]["owner"]["organizations_url"]
-        if not is_github_url(orgs_url):
-            return False, "You are not a member of Falmouth-Games-Academy"
-    
-        with urllib.request.urlopen(orgs_url) as resp:
-            orgs = json.load(resp)
-    
-        if not any(o["login"] == "Falmouth-Games-Academy" for o in orgs):
-            return False, "You are not a member of Falmouth-Games-Academy"
-    
+        from db import allowed_users
+        if not any(u for u in allowed_users if u["login"] == bot["repository"]["owner"]["name"]):
+            print(bot["repository"]["owner"]["name"], "is not an allowed user")
+            return False, bot["repository"]["owner"]["name"] + " is not an allowed user"
+
     return True, ""
 
 

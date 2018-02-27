@@ -106,3 +106,6 @@ ENV/
 # Twistd
 twistd.pid
 
+# Server config
+allowed_users.json
+
