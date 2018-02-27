@@ -7,7 +7,7 @@ sudo add-apt-repository ppa:webupd8team/java
 sudo apt-get update
 sudo apt-get install oracle-java8-installer
 
-sudo apt-get install python3-pip python3-twisted mongodb git ant
+sudo apt-get install python3-pip python3-twisted mongodb git ant curl
 pip3 install flask pymongo
 
 sudo ufw enable
@@ -22,7 +22,7 @@ mkdir tournament
 mkdir tournament/matches
 
 git clone https://github.com/Falmouth-Games-Academy/comp250-server.git
+cd comp250-server
+./get_allowed_users.sh # NB: if you are not edpowley, you will need to edit the username in this script before running it
+./run_all.sh
 ```
-
-Now go into `comp250-server` and run `./run_server.sh` and `python3 run_matches.py`.
-
