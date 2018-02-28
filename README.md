@@ -26,3 +26,6 @@ cd comp250-server
 ./get_allowed_users.sh # NB: if you are not edpowley, you will need to edit the username in this script before running it
 ./run_all.sh
 ```
+
+Note: `get_allowed_users.sh` will need rewriting when `Falmouth-Games-Academy` has more than 100 members,
+as this is the maximum number of records that the GitHub API will return at once.

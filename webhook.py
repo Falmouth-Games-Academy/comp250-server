@@ -49,7 +49,7 @@ def authenticate(bot):
     
     if bot["repository"]["owner"]["name"] != "Falmouth-Games-Academy":
         from db import allowed_users
-        if not any(u for u in allowed_users if u["login"] == bot["repository"]["owner"]["name"]):
+        if not any(u for u in allowed_users if u["login"].lower() == bot["repository"]["owner"]["name"].lower()):
             print(bot["repository"]["owner"]["name"], "is not an allowed user")
             return False, bot["repository"]["owner"]["name"] + " is not an allowed user"
 
