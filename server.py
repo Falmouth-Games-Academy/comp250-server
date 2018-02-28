@@ -11,7 +11,7 @@ app = flask.Flask(__name__)
 def leaderboard():
     stats = [statistics.get_stats(bot["_id"] + '+' + class_name)
              for bot in db.bots.find({})
-             for class_name in bot["class_names"]]
+             for class_name in (bot.get("class_names") or [])]
     
     for stat in stats:
         author, bot_id, class_name = stat["_id"].split('+')

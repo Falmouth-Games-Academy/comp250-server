@@ -103,9 +103,6 @@ ENV/
 # PyCharm
 .idea/
 
-# Twistd
-twistd.pid
-
-# Server config
+# Server config and temp files
 allowed_users.json
-
+*.pid
