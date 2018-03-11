@@ -3,6 +3,7 @@
 		{% if stats_show_project %}
 			<th>Author</th>
 			<th>Project name</th>
+            <th>Last updated</th>
 		{% endif %}
 		<th>Class name</th>
 		<th>Elo rating</th>
@@ -22,6 +23,7 @@
 				    {{ author }}
                 </td>
 				<td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
+                <td>{{ stat.bot.repository.pushed_at | ctime }}</td>
 			{% endif %}
 			<td><a href="/history/{{ stat._id }}">{{ class_name }}</a></td>
 			<td>{{ stat.elo | round | int }}</td>

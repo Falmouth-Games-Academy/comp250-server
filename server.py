@@ -1,10 +1,16 @@
 import flask
 import os
+import time
 
 from db import db
 import statistics
 
 app = flask.Flask(__name__)
+
+
+@app.template_filter('ctime')
+def timectime(s):
+    return time.ctime(s) # datetime.datetime.fromtimestamp(s)
 
 
 @app.route("/")
