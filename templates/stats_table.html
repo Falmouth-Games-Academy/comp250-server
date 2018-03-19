@@ -1,52 +1,54 @@
 <table class="stats">
-	<tr>
-		{% if stats_show_project %}
-			<th>Author</th>
-			<th>Project name</th>
+    <tr>
+        {% if stats_show_project %}
+            <th>Author</th>
+            <th>Project name</th>
             <th>Last updated</th>
-		{% endif %}
-		<th>Class name</th>
-		<th>Elo rating</th>
+        {% endif %}
+        <th>Class name</th>
+        <th>Elo rating</th>
         <th>Played</th>
-		<th>Won</th>
-		<th>Drawn</th>
-		<th>Lost</th>
-		<th>Disqualified</th>
+        <th>Won</th>
+        <th>Drawn</th>
+        <th>Lost</th>
+        <th>Disqualified</th>
         <th>Queued</th>
-	</tr>
-	{% for stat in stats %}
-		<tr>
-			{% set author, repo_name, class_name = stat._id.split('+') %}
-			{% if stats_show_project %}
+    </tr>
+    {% for stat in stats %}
+        <tr>
+            {% set author, repo_name, class_name = stat._id.split('+') %}
+            {% if stats_show_project %}
                 <td class="author">
                     <img class="avatar" src="{{ stat.bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
-				    {{ author }}
+                    {{ author }}
                 </td>
-				<td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
+                <td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
                 <td>{{ stat.bot.repository.pushed_at | ctime }}</td>
-			{% endif %}
-			<td><a href="/history/{{ stat._id }}">{{ class_name }}</a></td>
-			<td>{{ stat.elo | round | int }}</td>
+            {% endif %}
+            <td><a href="/history/{{ stat._id }}">{{ class_name }}</a></td>
+            <td>{{ stat.elo | round | int }}</td>
             <td>{{ stat.won + stat.drawn + stat.lost + stat.disqualified }}</td>
-			<td>{{ stat.won }}</td>
-			<td>{{ stat.drawn }}</td>
-			<td>{{ stat.lost }}</td>
-			<td>{{ stat.disqualified }}</td>
+            <td>{{ stat.won }}</td>
+            <td>{{ stat.drawn }}</td>
+            <td>{{ stat.lost }}</td>
+            <td>{{ stat.disqualified }}</td>
             <td>{{ stat.queued }}</td>
-		</tr>
-	{% endfor %}
+        </tr>
+    {% endfor %}
 
-	{% if stats_show_project %}
-		{% for bot in unready_bots %}
-			{% set author, repo_name = bot._id.split('+') %}
-			<td class="author">
-                <img class="avatar" src="{{ bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
-                {{ author }}
-            </td>
-			<td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
-			<td colspan="8">{{ bot.status }}</td>
-		{% endfor %}
-	{% endif %}
-		
+    {% if stats_show_project %}
+        {% for bot in unready_bots %}
+            {% set author, repo_name = bot._id.split('+') %}
+            <tr>
+                <td class="author">
+                    <img class="avatar" src="{{ bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
+                    {{ author }}
+                </td>
+                <td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
+                <td colspan="9">{{ bot.status }}</td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+        
 </table>
 
