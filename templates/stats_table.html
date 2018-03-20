@@ -45,7 +45,8 @@
                     {{ author }}
                 </td>
                 <td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
-                <td colspan="9">{{ bot.status }}</td>
+                <td>{{ bot.repository.pushed_at | ctime }}</td>
+                <td colspan="8">{{ bot.status }}</td>
             </tr>
         {% endfor %}
     {% endif %}
