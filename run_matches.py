@@ -8,6 +8,7 @@ import datetime
 
 from db import db
 import statistics
+from sample_bots import sample_bots
 
 
 def play_match(match):
@@ -17,8 +18,11 @@ def play_match(match):
         author, bot_id, class_name = player.split('+')
         bot_id = author + '+' + bot_id
         bot = db.bots.find_one({"_id": bot_id})
-        jar_name = bot_id + '+' + bot["head"][:10] + '.jar'
-        jar_path = os.path.join("..", "tournament", jar_name)
+        if bot_id == sample_bots["_id"]:
+            jar_path = "."
+        else:
+            jar_name = bot_id + '+' + bot["head"][:10] + '.jar'
+            jar_path = os.path.join("..", "tournament", jar_name)
         command.append(jar_path)
         command.append(class_name)
 
@@ -62,7 +66,10 @@ def main():
     while True:
         match = db.match_queue.find_one_and_delete({}, sort=[("random", pymongo.ASCENDING)])
         if match is not None:
-            play_match(match)
+            try:
+                play_match(match)
+            except Exception as e:
+                print("ERROR:", e)
         else:
             time.sleep(1)
 

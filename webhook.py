@@ -11,6 +11,8 @@ from worker import WorkerThread
 from server import app
 from db import db
 import statistics
+from sample_bots import sample_bots
+
 
 worker = WorkerThread()
 worker.daemon = True
@@ -124,7 +126,8 @@ def pull_and_build(bot):
         commands = [
             ["git", "clean", "-fdx"],
             ["git", "fetch"],
-            ["git", "reset", "--hard", bot["head"]]
+            ["git", "reset", "--hard", bot["head"]],
+            ["git", "submodule", "update", "--init", "--recursive"]
         ]
 
     jar_name = bot["_id"] + "+" + bot["head"][:10] + ".jar"
@@ -203,8 +206,20 @@ def hook():
     return ""
 
 
+@app.route("/rerun_sample_bots")
+def rerun_sample_bots():
+    delete_matches(sample_bots["_id"])
+    generate_matches(sample_bots["_id"])
+    return "OK"
+
+
 def update_all_bots():
+    db.bots.replace_one({"_id": sample_bots["_id"]}, sample_bots, upsert=True)
+
     for bot in db.bots.find({}):
+        if bot["_id"] == sample_bots["_id"]:
+            continue
+
         clone_path = os.path.join("..", "tournament", bot["_id"])
         if not os.path.exists(clone_path):
             print("Forcing update for", bot["_id"])
@@ -212,6 +227,7 @@ def update_all_bots():
         else:
             try:
                 branch_url = bot["repository"]["branches_url"].replace("{/branch}", "/master")
+                print("Fetching", branch_url)
                 with urllib.request.urlopen(branch_url) as resp:
                     branch = json.load(resp)
                 if branch["commit"]["sha"] != bot["head"]:
@@ -221,6 +237,7 @@ def update_all_bots():
                     pull_and_build(bot)
                 else:
                     print(bot["_id"], "is up to date")
-            except KeyError as e:
+            except Exception as e:
                 print("Error updating", bot["_id"])
                 print(e)
+

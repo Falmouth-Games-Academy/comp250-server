@@ -19,11 +19,17 @@
             {% set author, repo_name, class_name = stat._id.split('+') %}
             {% if stats_show_project %}
                 <td class="author">
-                    <img class="avatar" src="{{ stat.bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
+                    {% if stat.bot.repository %}
+                        <img class="avatar" src="{{ stat.bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
+                    {% endif %}
                     {{ author }}
                 </td>
                 <td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
-                <td>{{ stat.bot.repository.pushed_at | ctime }}</td>
+                <td>
+                    {% if stat.bot.repository %}
+                        {{ stat.bot.repository.pushed_at | ctime }}
+                    {% endif %}
+                </td>
             {% endif %}
             <td><a href="/history/{{ stat._id }}">{{ class_name }}</a></td>
             <td>{{ stat.elo | round | int }}</td>
@@ -41,11 +47,17 @@
             {% set author, repo_name = bot._id.split('+') %}
             <tr>
                 <td class="author">
-                    <img class="avatar" src="{{ bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
+                    {% if stat.bot.repository %}
+                        <img class="avatar" src="{{ stat.bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
+                    {% endif %}
                     {{ author }}
                 </td>
                 <td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
-                <td>{{ bot.repository.pushed_at | ctime }}</td>
+                <td>
+                    {% if stat.bot.repository %}
+                        {{ stat.bot.repository.pushed_at | ctime }}
+                    {% endif %}
+                </td>
                 <td colspan="8">{{ bot.status }}</td>
             </tr>
         {% endfor %}
