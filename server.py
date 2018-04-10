@@ -26,8 +26,14 @@ def leaderboard():
     stats.sort(key=lambda s: s["elo"], reverse=True)
     
     unready_bots = list(db.bots.find({"status": {"$ne": "ready"}}))
+    
+    matches_left = db.match_queue.find({}).count()
+    if matches_left > 0:
+        time_left = matches_left * statistics.average(m["end_time"] - m["start_time"] for m in db.match_history.find({}))
+    else:
+        time_left = None
 
-    return flask.render_template("index.html", stats=stats, unready_bots=unready_bots)
+    return flask.render_template("index.html", stats=stats, unready_bots=unready_bots, time_left=time_left)
 
 
 @app.route("/bot/<bot_id>")
