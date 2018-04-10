@@ -2,6 +2,23 @@ from db import db
 import pymongo
 
 
+def average(seq):
+    s = None
+    n = 0
+    
+    for x in seq:
+        if n == 0:
+            s = x
+        else:
+            s += x
+        n += 1
+    
+    if n > 0:
+        return s / n
+    else:
+        return 0.0
+
+
 def get_stats(player_id):
     result = db.stats.find_one({"_id": player_id})
     if result is None:
@@ -15,6 +32,8 @@ def get_stats(player_id):
         }
     
     result["queued"] = db.match_queue.find({"players": player_id}).count()
+    
+    result["average_match_time"] = average(m["end_time"] - m["start_time"] for m in db.match_history.find({"players": player_id}))
     
     return result
 

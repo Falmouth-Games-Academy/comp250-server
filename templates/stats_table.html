@@ -13,6 +13,7 @@
         <th>Lost</th>
         <th>Disqualified</th>
         <th>Queued</th>
+        <th>Average match length</th>
     </tr>
     {% for stat in stats %}
         <tr>
@@ -39,6 +40,7 @@
             <td>{{ stat.lost }}</td>
             <td>{{ stat.disqualified }}</td>
             <td>{{ stat.queued }}</td>
+            <td>{{ stat.average_match_time }}</td>
         </tr>
     {% endfor %}
 
@@ -58,7 +60,7 @@
                         {{ stat.bot.repository.pushed_at | ctime }}
                     {% endif %}
                 </td>
-                <td colspan="8">{{ bot.status }}</td>
+                <td colspan="9">{{ bot.status }}</td>
             </tr>
         {% endfor %}
     {% endif %}
