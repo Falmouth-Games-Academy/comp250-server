@@ -1,6 +1,7 @@
 import flask
 import os
 import time
+import re
 
 from db import db
 import statistics
@@ -11,6 +12,11 @@ app = flask.Flask(__name__)
 @app.template_filter('ctime')
 def timectime(s):
     return time.ctime(s) # datetime.datetime.fromtimestamp(s)
+
+
+@app.template_filter('add_zwsp')
+def add_zwsp(s):
+    return re.sub(r'([.])', '\\1\u200B', s)
 
 
 @app.route("/")

@@ -32,7 +32,7 @@
                     {% endif %}
                 </td>
             {% endif %}
-            <td><a href="/history/{{ stat._id }}">{{ class_name }}</a></td>
+            <td><a href="/history/{{ stat._id }}">{{ class_name | add_zwsp }}</a></td>
             <td>{{ stat.elo | round | int }}</td>
             <td>{{ stat.won + stat.drawn + stat.lost + stat.disqualified }}</td>
             <td>{{ stat.won }}</td>
