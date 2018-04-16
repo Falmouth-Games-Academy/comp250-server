@@ -52,7 +52,12 @@
 						<td class="loss">P{{ match.result.winner }} win</td>
 					{% endif %}
 
-					<td><a href="/trace_dl/{{ match.zip }}">Download</a></td>
+					<td>
+                        {% if match.result.disqualified %}
+                            <a href="/stack_trace/{{ match._id }}">Stack trace</a><br />
+                        {% endif %}
+                        <a href="/trace_dl/{{ match.zip }}">Download</a>
+                    </td>
 
 				{% endif %}
 			</tr>

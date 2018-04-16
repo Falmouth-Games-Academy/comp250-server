@@ -2,6 +2,7 @@ import flask
 import os
 import time
 import re
+from bson.objectid import ObjectId
 
 from db import db
 import statistics
@@ -74,6 +75,12 @@ def history(bot_class_id):
 @app.route("/trace_dl/<zipname>")
 def trace_download(zipname):
     return flask.send_from_directory("../tournament/matches", zipname)
+
+
+@app.route("/stack_trace/<match_id>")
+def show_stack_trace(match_id):
+    match = db.match_history.find_one({"_id": ObjectId(match_id)})
+    return flask.render_template("stack_trace.html", match=match)
 
 
 @app.route("/static/<path:path>")

@@ -13,7 +13,6 @@
         <th>Lost</th>
         <th>Disqualified</th>
         <th>Queued</th>
-        <th>Average match length</th>
     </tr>
     {% for stat in stats %}
         <tr>
@@ -40,7 +39,6 @@
             <td>{{ stat.lost }}</td>
             <td>{{ stat.disqualified }}</td>
             <td>{{ stat.queued }}</td>
-            <td>{{ stat.average_match_time }}</td>
         </tr>
     {% endfor %}
 
@@ -49,18 +47,18 @@
             {% set author, repo_name = bot._id.split('+') %}
             <tr>
                 <td class="author">
-                    {% if stat.bot.repository %}
-                        <img class="avatar" src="{{ stat.bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
+                    {% if bot.repository %}
+                        <img class="avatar" src="{{ bot.repository.owner.avatar_url }}" alt="{{ author }}"/>
                     {% endif %}
                     {{ author }}
                 </td>
                 <td><a href="/bot/{{ author }}+{{ repo_name }}">{{ repo_name }}</a></td>
                 <td>
-                    {% if stat.bot.repository %}
-                        {{ stat.bot.repository.pushed_at | ctime }}
+                    {% if bot.repository %}
+                        {{ bot.repository.pushed_at | ctime }}
                     {% endif %}
                 </td>
-                <td colspan="9">{{ bot.status }}</td>
+                <td colspan="8">{{ bot.status }}</td>
             </tr>
         {% endfor %}
     {% endif %}

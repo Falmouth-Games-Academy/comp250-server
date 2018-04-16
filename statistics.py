@@ -33,7 +33,7 @@ def get_stats(player_id):
     
     result["queued"] = db.match_queue.find({"players": player_id}).count()
     
-    result["average_match_time"] = average(m["end_time"] - m["start_time"] for m in db.match_history.find({"players": player_id}))
+    #result["average_match_time"] = average(m["end_time"] - m["start_time"] for m in db.match_history.find({"players": player_id}))
     
     return result
 
