@@ -15,6 +15,27 @@ def timectime(s):
     return time.ctime(s) # datetime.datetime.fromtimestamp(s)
 
 
+@app.template_filter('how_long_ago')
+def how_long_ago(s):
+    seconds_passed = time.time() - s
+    if seconds_passed < 0:
+        return "In the future"
+    elif seconds_passed < 60:
+        elapsed = (seconds_passed, "second")
+    elif seconds_passed < 60 * 60:
+        elapsed = (seconds_passed / 60, "minute")
+    elif seconds_passed < 60 * 60 * 24:
+        elapsed = (seconds_passed / 60 / 60, "hour")
+    else:
+        elapsed = (seconds_passed / 60 / 60 / 24, "day")
+    
+    num, unit = elapsed
+    num = round(num)
+    if num != 1:
+        unit += 's'
+    return "%i %s ago" % (num, unit)
+
+
 @app.template_filter('add_zwsp')
 def add_zwsp(s):
     return re.sub(r'([.])', '\\1\u200B', s)

@@ -40,7 +40,11 @@
 
 					{% if match.result.disqualified %}
 						{% if match.result.disqualified-1 == match.this_player_index %}
-							<td class="loss">P{{ match.result.disqualified }} DQ</td>
+							<td class="loss">
+                                P{{ match.result.disqualified }} DQ<br />
+                                {% set exception = match.result.stackTrace.split('\n')[0].split('.')[-1] %}
+                                {{ exception }}
+                            </td>
 						{% else %}
 							<td class="win">P{{ match.result.disqualified }} DQ</td>
 						{% endif %}
