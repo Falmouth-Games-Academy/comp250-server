@@ -6,6 +6,11 @@
 	</head>
 	<body>
 		<h1>{{ self.title() }}</h1>
+        {% if alert %}
+            <div class="alert">
+                {{ alert }}
+            </div>
+        {% endif %}
 		{% block nav %}
 			<div class="nav">
 				<a href="/">Back to leaderboard</a>

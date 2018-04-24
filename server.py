@@ -2,6 +2,8 @@ import flask
 import os
 import time
 import re
+import datetime
+import glob
 from bson.objectid import ObjectId
 
 from db import db
@@ -43,6 +45,17 @@ def add_zwsp(s):
 
 @app.route("/")
 def leaderboard():
+    alert = None
+    today = datetime.date.today()
+    if today == datetime.date(2018, 4, 24):
+        alert = "Remember to submit your work for peer review on LearningSpace by midnight tonight!"
+    elif today == datetime.date(2018, 4, 25):
+        alert = "Remember to complete your assigned peer reviews on LearningSpace by midnight tomorrow!"
+    elif today == datetime.date(2018, 4, 26):
+        alert = "Remember to complete your assigned peer reviews on LearningSpace by midnight tonight!"
+    elif today <= datetime.date(2018, 4, 30):
+        alert = "Remember to check MyFalmouth for the assessment deadline!"
+
     stats = [statistics.get_stats(bot["_id"] + '+' + class_name)
              for bot in db.bots.find({})
              for class_name in (bot.get("class_names") or [])]
@@ -57,11 +70,12 @@ def leaderboard():
     
     matches_left = db.match_queue.find({}).count()
     if matches_left > 0:
-        time_left = matches_left * statistics.average(m["end_time"] - m["start_time"] for m in db.match_history.find({}))
+        num_workers = len(glob.glob("run_matches*.pid"))
+        time_left = matches_left * statistics.average(m["end_time"] - m["start_time"] for m in db.match_history.find({})) / num_workers
     else:
         time_left = None
 
-    return flask.render_template("index.html", stats=stats, unready_bots=unready_bots, time_left=time_left)
+    return flask.render_template("index.html", stats=stats, unready_bots=unready_bots, time_left=time_left, alert=alert)
 
 
 @app.route("/bot/<bot_id>")
