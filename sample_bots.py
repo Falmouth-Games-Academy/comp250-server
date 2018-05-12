@@ -3,7 +3,7 @@ from db import db
 sample_bots = {
     "_id": "Falmouth-Games-Academy+comp250-microrts",
     "status": "ready",
-    "repository": db.bots.find_one({"_id": "Falmouth-Games-Academy+comp250-bot"})["repository"],
+    #"repository": db.bots.find_one({"_id": "Falmouth-Games-Academy+comp250-bot"})["repository"],
     "class_names": [
         "ai.PassiveAI",
         "ai.RandomAI",

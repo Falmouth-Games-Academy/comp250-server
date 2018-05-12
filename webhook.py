@@ -7,6 +7,7 @@ import random
 import re
 from urllib.parse import urlparse
 
+from config import config
 from worker import WorkerThread
 from server import app
 from db import db
@@ -111,7 +112,7 @@ def generate_matches(bot_id):
 def pull_and_build(bot):
     delete_matches(bot["_id"])
 
-    clone_path = os.path.join("..", "tournament", bot["_id"])
+    clone_path = os.path.join(config.tournament_dir_path, bot["_id"])
 
     if not os.path.exists(clone_path):
         os.mkdir(clone_path)
@@ -143,13 +144,13 @@ def pull_and_build(bot):
 
     if success:
         command = ["java", "-cp", "microrts.jar:lib/*", "comp250.ListTournamentAIsInJar",
-                   os.path.join("..", "tournament", jar_name)]
+                   os.path.join(config.tournament_dir_path, jar_name)]
         working_dir = os.path.join("..", "comp250-microrts")
 
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8", cwd=working_dir)
         if result.returncode == 0:
             class_names = [name for name in result.stdout.split('\n') if name != ""]
-            print(class_names)
+            print(class_names) 
         else:
             class_names = []
             build_log += '-' * 80
@@ -176,34 +177,35 @@ def pull_and_build(bot):
     return success
 
 
-@app.route("/hook", methods=['POST'])
-def hook():
-    request_json = flask.request.get_json()
+if config.enable_webhook:
+    @app.route("/hook", methods=['POST'])
+    def hook():
+        request_json = flask.request.get_json()
+        
+        if "zen" in request_json: # ping
+            return "pong"
+        
+        if request_json["ref"] == "refs/heads/master":
+            success, log = authenticate(request_json)
+        
+            if success:
+                bot_id = request_json["repository"]["full_name"].replace('/', '+')
+                existing_bot = db.bots.find_one({"_id": bot_id})
+        
+                if existing_bot is None:
+                    existing_bot = {"_id": bot_id}
+        
+                existing_bot["repository"] = request_json["repository"]
+                existing_bot["head"] = request_json["after"]
+                existing_bot["status"] = "building"
+        
+                db.bots.replace_one({"_id": bot_id}, existing_bot, upsert=True)
+        
+                worker.enqueue(pull_and_build, existing_bot)
+            else:
+                print(log)
     
-    if "zen" in request_json: # ping
-        return "pong"
-    
-    if request_json["ref"] == "refs/heads/master":
-        success, log = authenticate(request_json)
-    
-        if success:
-            bot_id = request_json["repository"]["full_name"].replace('/', '+')
-            existing_bot = db.bots.find_one({"_id": bot_id})
-    
-            if existing_bot is None:
-                existing_bot = {"_id": bot_id}
-    
-            existing_bot["repository"] = request_json["repository"]
-            existing_bot["head"] = request_json["after"]
-            existing_bot["status"] = "building"
-    
-            db.bots.replace_one({"_id": bot_id}, existing_bot, upsert=True)
-    
-            worker.enqueue(pull_and_build, existing_bot)
-        else:
-            print(log)
-
-    return ""
+        return ""
 
 
 @app.route("/rerun_sample_bots")
@@ -213,31 +215,42 @@ def rerun_sample_bots():
     return "OK"
 
 
+@app.route("/rerun_all_bots")
+def rerun_all_bots():
+    db.match_queue.drop()
+    db.match_history.drop()
+    
+    for bot in db.bots.find({}):
+        generate_matches(bot["_id"])
+
+    return "OK"
+
+
 def update_all_bots():
     db.bots.replace_one({"_id": sample_bots["_id"]}, sample_bots, upsert=True)
-
-    for bot in db.bots.find({}):
-        if bot["_id"] == sample_bots["_id"]:
-            continue
-
-        clone_path = os.path.join("..", "tournament", bot["_id"])
-        if not os.path.exists(clone_path):
-            print("Forcing update for", bot["_id"])
-            pull_and_build(bot)
-        else:
-            try:
-                branch_url = bot["repository"]["branches_url"].replace("{/branch}", "/master")
-                print("Fetching", branch_url)
-                with urllib.request.urlopen(branch_url) as resp:
-                    branch = json.load(resp)
-                if branch["commit"]["sha"] != bot["head"]:
-                    print("Updating", bot["_id"])
-                    bot["head"] = branch["commit"]["sha"]
-                    db.bots.replace_one({"_id": bot["_id"]}, bot)
-                    pull_and_build(bot)
-                else:
-                    print(bot["_id"], "is up to date")
-            except Exception as e:
-                print("Error updating", bot["_id"])
-                print(e)
-
+    
+    if config.enable_git:
+        for bot in db.bots.find({}):
+            if bot["_id"] == sample_bots["_id"]:
+                continue
+    
+            clone_path = os.path.join(config.tournament_dir_path, bot["_id"])
+            if not os.path.exists(clone_path):
+                print("Forcing update for", bot["_id"])
+                pull_and_build(bot)
+            else:
+                try:
+                    branch_url = bot["repository"]["branches_url"].replace("{/branch}", "/master")
+                    print("Fetching", branch_url)
+                    with urllib.request.urlopen(branch_url) as resp:
+                        branch = json.load(resp)
+                    if branch["commit"]["sha"] != bot["head"]:
+                        print("Updating", bot["_id"])
+                        bot["head"] = branch["commit"]["sha"]
+                        db.bots.replace_one({"_id": bot["_id"]}, bot)
+                        pull_and_build(bot)
+                    else:
+                        print(bot["_id"], "is up to date")
+                except Exception as e:
+                    print("Error updating", bot["_id"])
+                    print(e)

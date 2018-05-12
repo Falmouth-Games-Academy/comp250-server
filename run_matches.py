@@ -6,6 +6,7 @@ import json
 import subprocess
 import datetime
 
+from config import config
 from db import db
 import statistics
 from sample_bots import sample_bots
@@ -22,14 +23,14 @@ def play_match(match):
             jar_path = "."
         else:
             jar_name = bot_id + '+' + bot["head"][:10] + '.jar'
-            jar_path = os.path.join("..", "tournament", jar_name)
+            jar_path = os.path.join(config.tournament_dir_path, jar_name)
         command.append(jar_path)
         command.append(class_name)
 
     command.append(match["map"])
 
     zip_name = str(match["_id"]) + ".zip"
-    zip_path = os.path.join("..", "tournament", "matches", zip_name)
+    zip_path = os.path.join(config.tournament_dir_path, "matches", zip_name)
     command.append(zip_path)
 
     working_dir = os.path.join("..", "comp250-microrts")
