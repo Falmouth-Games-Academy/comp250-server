@@ -98,12 +98,13 @@ def generate_matches(bot_id):
     
     for pairing in pairings:
         for map_name in maps:
-            match = {
-                "players": list(pairing),
-                "map": map_name,
-                "random": random.random()
-            }
-            db.match_queue.insert_one(match)
+            for i in range(config.matches_per_pairing):
+                match = {
+                    "players": list(pairing),
+                    "map": map_name,
+                    "random": random.random()
+                }
+                db.match_queue.insert_one(match)
 
     db.match_queue.create_index("random")
     db.match_queue.create_index("players")
@@ -217,10 +218,8 @@ def rerun_sample_bots():
 
 @app.route("/rerun_all_bots")
 def rerun_all_bots():
-    db.match_queue.drop()
-    db.match_history.drop()
-    
     for bot in db.bots.find({}):
+        delete_matches(bot["_id"])
         generate_matches(bot["_id"])
 
     return "OK"

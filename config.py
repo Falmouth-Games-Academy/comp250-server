@@ -8,6 +8,7 @@ class ConfigRolling:
         self.tournament_dir_path = "../tournament"
         self.enable_webhook = True
         self.enable_git = True
+        self.matches_per_pairing = 1
         self.maps = [
             "maps/10x10/basesWorkers10x10.xml",
             "maps/12x12/basesWorkers12x12.xml",
@@ -27,7 +28,8 @@ class ConfigGrading(ConfigRolling):
         self.tournament_dir_path = "../tournament_grading"
         self.enable_webhook = False
         self.enable_git = False
-        
+        self.matches_per_pairing = 5
+
 
 #config = ConfigRolling()
 config = ConfigGrading()
