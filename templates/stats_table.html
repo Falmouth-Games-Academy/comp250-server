@@ -28,7 +28,8 @@
                 <td>
                     {% if stat.bot.repository %}
                         {{ stat.bot.repository.pushed_at | ctime }}<br />
-                        ({{ stat.bot.repository.pushed_at | how_long_ago }})
+                        ({{ stat.bot.repository.pushed_at | how_long_ago }})<br />
+                        <a href="/update_bot/{{ author }}+{{ repo_name }}">Update now</a>
                     {% endif %}
                 </td>
             {% endif %}
@@ -57,7 +58,8 @@
                 <td>
                     {% if bot.repository %}
                         {{ bot.repository.pushed_at | ctime }}<br />
-                        ({{ bot.repository.pushed_at | how_long_ago }})
+                        ({{ bot.repository.pushed_at | how_long_ago }}) 
+                        <a href="/update_bot/{{ author }}+{{ repo_name }}">Update now</a>
                     {% endif %}
                 </td>
                 <td colspan="8">{{ bot.status }}</td>

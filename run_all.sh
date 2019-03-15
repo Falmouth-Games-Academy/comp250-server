@@ -1,5 +1,6 @@
 #!/bin/bash
 
+rm server.log
 ./run_server.sh >server.log 2>&1 &
 
 for i in {1..3}; do

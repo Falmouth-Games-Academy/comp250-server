@@ -6,7 +6,7 @@ class ConfigRolling:
     def __init__(self):
         self.database_name = "comp250"
         self.tournament_dir_path = "../tournament"
-        self.enable_webhook = True
+        self.enable_webhook = False
         self.enable_git = True
         self.matches_per_pairing = 1
         self.maps = [
@@ -31,5 +31,5 @@ class ConfigGrading(ConfigRolling):
         self.matches_per_pairing = 5
 
 
-#config = ConfigRolling()
-config = ConfigGrading()
+config = ConfigRolling()
+#config = ConfigGrading()

@@ -5,10 +5,11 @@ import urllib
 import json
 import random
 import re
+import time
 from urllib.parse import urlparse
 
 from config import config
-from worker import WorkerThread
+from worker import WorkerThread, WorkerItemStatus
 from server import app
 from db import db
 import statistics
@@ -119,18 +120,16 @@ def pull_and_build(bot):
         os.mkdir(clone_path)
         commands = [
             ["git", "init"],
-            ["git", "remote", "add", "origin", bot["repository"]["clone_url"]],
-            ["git", "fetch"],
-            ["git", "reset", "--hard", bot["head"]],
-            ["git", "submodule", "update", "--init", "--recursive"]
+            ["git", "remote", "add", "origin", bot["repository"]["clone_url"]]
         ]
     else:
         commands = [
-            ["git", "clean", "-fdx"],
-            ["git", "fetch"],
-            ["git", "reset", "--hard", bot["head"]],
-            ["git", "submodule", "update", "--init", "--recursive"]
+            ["git", "clean", "-fdx"]
         ]
+    
+    commands.append(["git", "fetch"])
+    commands.append(["git", "reset", "--hard", bot["head"]])
+    commands.append(["git", "submodule", "update", "--init", "--recursive"])
 
     jar_name = bot["_id"] + "+" + bot["head"][:10] + ".jar"
 
@@ -207,6 +206,45 @@ if config.enable_webhook:
                 print(log)
     
         return ""
+
+
+@app.route("/update_bot/<bot_id>")
+def update_bot(bot_id):
+    bot = db.bots.find_one({"_id": bot_id})
+
+    if bot is None:
+        bot = {"_id": bot_id}
+
+    api_url = "https://api.github.com/repos/" + bot_id.replace('+', '/')
+    repository_data = json.loads(urllib.request.urlopen(api_url).read())
+    api_url += "/commits/master"
+    commit_data = json.loads(urllib.request.urlopen(api_url).read())
+    
+    bot["repository"] = repository_data
+    bot["head"] = commit_data["sha"]
+    bot["status"] = "building"
+
+    db.bots.replace_one({"_id": bot_id}, bot, upsert=True)
+
+    queue_item = worker.enqueue(pull_and_build, bot)
+    while queue_item.status == WorkerItemStatus.waiting:
+        time.sleep(0.1)
+
+    return flask.redirect("/")
+
+
+@app.route("/add_bot", methods=['POST'])
+def add_bot():
+    repo_url = flask.request.form['repo_url']
+    match = re.search(r'github.com/([^/]*)/([^/]*)', repo_url)
+    if match is None:
+        return flask.render_template("error.html", message="Invalid GitHub repository URL")
+
+    owner = match.group(1)
+    repo = match.group(2)
+    bot_id = owner + "+" + repo
+
+    return add_or_update_bot(bot_id)
 
 
 @app.route("/rerun_sample_bots")

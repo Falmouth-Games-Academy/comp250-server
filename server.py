@@ -3,6 +3,7 @@ import os
 import time
 import re
 import datetime
+from dateutil import parser as dateutil_parser
 import glob
 from bson.objectid import ObjectId
 
@@ -15,12 +16,13 @@ app = flask.Flask(__name__)
 
 @app.template_filter('ctime')
 def timectime(s):
-    return time.ctime(s) # datetime.datetime.fromtimestamp(s)
+    return dateutil_parser.parse(s) # time.ctime(s) # datetime.datetime.fromtimestamp(s)
 
 
 @app.template_filter('how_long_ago')
 def how_long_ago(s):
-    seconds_passed = time.time() - s
+    s = dateutil_parser.parse(s)
+    seconds_passed = (datetime.datetime.now(datetime.timezone.utc) - s).total_seconds()
     if seconds_passed < 0:
         return "In the future"
     elif seconds_passed < 60:
@@ -45,6 +47,7 @@ def add_zwsp(s):
 
 
 @app.route("/")
+@app.route("/index")
 def leaderboard():
     alert = None
     today = datetime.date.today()

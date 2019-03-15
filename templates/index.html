@@ -4,7 +4,13 @@
     {% if time_left %}
         <p>Estimated time until all matches complete: {{ time_left }}</p>
     {% endif %}
-    <p></p>
+    <p>
+        <form action="{{url_for('add_bot')}}" method="post">
+            Add bot:
+            <input type="text" size="80" placeholder="GitHub repository URL" name="repo_url" />
+            <input type="submit" value="Add" />
+        </form>
+    </p>
 	{% set stats_show_project = True %}
 	{% include "stats_table.html" %}
 {% endblock %}
