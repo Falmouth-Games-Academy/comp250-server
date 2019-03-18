@@ -216,9 +216,16 @@ def update_bot(bot_id):
         bot = {"_id": bot_id}
 
     api_url = "https://api.github.com/repos/" + bot_id.replace('+', '/')
-    repository_data = json.loads(urllib.request.urlopen(api_url).read())
+    try:
+        repository_data = json.loads(urllib.request.urlopen(api_url).read())
+    except Exception as e:
+        return flask.render_template("error.html", message="Error fetching %s: %r" % (api_url, e))
+
     api_url += "/commits/master"
-    commit_data = json.loads(urllib.request.urlopen(api_url).read())
+    try:
+        commit_data = json.loads(urllib.request.urlopen(api_url).read())
+    except Exception as e:
+        return flask.render_template("error.html", message="Error fetching %s: %r" % (api_url, e))
     
     bot["repository"] = repository_data
     bot["head"] = commit_data["sha"]
@@ -242,9 +249,11 @@ def add_bot():
 
     owner = match.group(1)
     repo = match.group(2)
+    if repo.endswith('.git'):
+        repo = repo[:-4]
     bot_id = owner + "+" + repo
 
-    return add_or_update_bot(bot_id)
+    return update_bot(bot_id)
 
 
 @app.route("/rerun_sample_bots")
