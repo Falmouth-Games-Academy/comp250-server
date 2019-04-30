@@ -58,11 +58,11 @@
                 <td>
                     {% if bot.repository %}
                         {{ bot.repository.pushed_at | ctime }}<br />
-                        ({{ bot.repository.pushed_at | how_long_ago }}) 
+                        ({{ bot.repository.pushed_at | how_long_ago }})<br />
                         <a href="/update_bot/{{ author }}+{{ repo_name }}">Update now</a>
                     {% endif %}
                 </td>
-                <td colspan="8">{{ bot.status }}</td>
+                <td colspan="8"><a href="/bot/{{ author }}+{{ repo_name }}">{{ bot.status }}</a></td>
             </tr>
         {% endfor %}
     {% endif %}
